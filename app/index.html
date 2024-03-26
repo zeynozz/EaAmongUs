@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Among Us</title>
+    <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
+    <script defer src="app.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div id="gameContainer">
+    <div id="userContainer"></div>
+</div>
+<div class="chat-container">
+    <ul class="messages"></ul>
+    <div class="message">
+        <input id="messageInput" type="text" placeholder="Type your message...">
+        <button id="sendMessageButton">Send</button>
+    </div>
+</div>
