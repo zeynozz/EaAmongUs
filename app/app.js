@@ -4,6 +4,9 @@ const fieldHeight = 250;
 const playerSize = 50;
 let playerPositions = {};
 
+const params = new URLSearchParams(window.location.search);
+const name = params.get('username');
+
 const sendMessageButton = document.getElementById('sendMessageButton');
 const messageInput = document.getElementById('messageInput');
 
@@ -15,7 +18,6 @@ sendMessageButton.onclick = () => {
 
 socket.on('connect', () => {
     console.log('Connected as:', socket.id);
-    const name = prompt('Enter your name:');
     socket.emit('set_name', name);
 });
 
