@@ -1,6 +1,6 @@
 const socket = io('ws://localhost:8080');
 const fieldWidth = 1600;
-const fieldHeight = 250;
+const fieldHeight = 600;
 const playerSize = 50;
 let playerPositions = {};
 
@@ -29,10 +29,20 @@ socket.on('message', text => {
 
 socket.on('update users', users => {
     document.getElementById('userContainer').innerHTML = '';
-    users.forEach(user => {
+    users.forEach((user, index) => {
         const playerEl = document.createElement('div');
         playerEl.classList.add('player');
         playerEl.id = `player-${user.id}`;
+
+        // Bestimme die Startposition basierend auf dem Index des Spielers
+        const angle = (index / users.length) * Math.PI * 2;
+        const radiusX = fieldWidth / 2 - 15 - playerSize / 2;
+        const radiusY = fieldHeight / 2 - 15 - playerSize / 2;
+        const startPositionX = fieldWidth / 2 + Math.cos(angle) * radiusX;
+        const startPositionY = fieldHeight / 2 + Math.sin(angle) * radiusY;
+
+        playerEl.style.transform = `translate(${startPositionX}px, ${startPositionY}px)`;
+
         document.getElementById('userContainer').appendChild(playerEl);
 
         const img = document.createElement('img');
@@ -45,19 +55,52 @@ socket.on('update users', users => {
         playerEl.appendChild(img);
         playerEl.appendChild(nameTag);
 
-        playerPositions[user.id] = { x: 0, y: 0 };
+        playerPositions[user.id] = { x: startPositionX, y: startPositionY };
     });
 });
+
+
 
 socket.on('update position', ({ id, position }) => {
     const playerEl = document.getElementById(`player-${id}`);
     if (playerEl) {
-        const newX = Math.max(0, Math.min(fieldWidth - playerSize, position.x));
-        const newY = Math.max(0, Math.min(fieldHeight - playerSize, position.y));
-        playerEl.style.transform = `translate(${newX}px, ${newY}px)`;
-        playerPositions[id] = { x: newX, y: newY };
+        // Begrenze die neuen Positionen innerhalb der runden Grenzen
+        const centerX = fieldWidth / 2;
+        const centerY = fieldHeight / 2;
+        const distance = Math.sqrt(Math.pow(position.x - centerX, 2) + Math.pow(position.y - centerY, 2));
+        if (distance <= fieldWidth / 2 - 15 - playerSize / 2) {
+            playerEl.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            playerPositions[id] = { x: position.x, y: position.y };
+        }
+    }
+
+    // Erstelle ein Rechteck um den Spieler für Kollisionserkennung
+    const playerRect = {
+        x: position.x,
+        y: position.y,
+        width: playerSize,
+        height: playerSize
+    };
+    // Überprüfe Kollisionen mit anderen Spielern
+    let collisionDetected = false;
+    for (const playerId in playerPositions) {
+        if (playerId !== id) {
+            const otherPlayerRect = {
+                x: playerPositions[playerId].x,
+                y: playerPositions[playerId].y,
+                width: playerSize,
+                height: playerSize
+            };
+
+            // Wenn Kollision mit einem anderen Spieler auftritt, markiere die Kollision
+            if (detectCollision(playerRect, otherPlayerRect)) {
+                collisionDetected = true;
+                break;
+            }
+        }
     }
 });
+
 
 document.addEventListener('keydown', event => {
     const speed = 25;
@@ -66,16 +109,16 @@ document.addEventListener('keydown', event => {
 
     switch (event.key) {
         case 'ArrowUp':
-            targetPosition.y = Math.max(0, targetPosition.y - speed);
+            targetPosition.y = Math.max(15, targetPosition.y - speed);
             break;
         case 'ArrowDown':
-            targetPosition.y = Math.min(fieldHeight - playerSize, targetPosition.y + speed);
+            targetPosition.y = Math.min(fieldHeight - 15 - playerSize, targetPosition.y + speed);
             break;
         case 'ArrowLeft':
-            targetPosition.x = Math.max(0, targetPosition.x - speed);
+            targetPosition.x = Math.max(15, targetPosition.x - speed);
             break;
         case 'ArrowRight':
-            targetPosition.x = Math.min(fieldWidth - playerSize, targetPosition.x + speed);
+            targetPosition.x = Math.min(fieldWidth - 15 - playerSize, targetPosition.x + speed);
             break;
     }
     socket.emit('move', targetPosition);

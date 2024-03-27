@@ -8,12 +8,18 @@ body {
 
 #gameContainer {
     width: 1600px;
-    height: 400px;
-    border: 15px solid grey;
+    height: 700px;
     position: fixed;
     margin-left: 10px;
     background-image: url('galaxy.jpeg');
+    background-size: cover;
+    border-top-left-radius: 50% 30%;
+    border-top-right-radius: 50% 30%;
+    border-bottom-left-radius: 30% 50%;
+    border-bottom-right-radius: 30% 50%;
+    border: 15px solid grey;
 }
+
 
 .player-image {
     width: 60px;
