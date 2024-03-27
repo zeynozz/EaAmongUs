@@ -7,10 +7,12 @@
 </head>
 <body class="index-background">
 <div class="centered-input">
-  <label>
-    <input type="text" id="username" maxlength="10" placeholder="username">
-  </label>
-  <button onclick="redirectToGame()">PLAY</button>
+  <form onsubmit="redirectToGame(); return false;">
+    <label>
+      <input type="text" id="username" maxlength="10" placeholder="username">
+    </label>
+    <button type="submit">PLAY</button>
+  </form>
 </div>
 <script>
   function redirectToGame() {
